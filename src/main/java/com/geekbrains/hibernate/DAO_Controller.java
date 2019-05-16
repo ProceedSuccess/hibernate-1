@@ -59,6 +59,23 @@ public class DAO_Controller implements DAO {
         return c.getStudentList();
     }
 
+    public void setCourse(String courseName){
+        Course course = new Course();
+        course.setCourse_name(courseName);
+        session.save(course);
+        this.courses = session.createQuery("from Course").getResultList();
+        session.getTransaction().commit();
+    }
+
+    public void setStudent(String lastName,String firstName){
+        Student student = new Student();
+        student.setLastName(lastName);
+        student.setFirstName(firstName);
+        session.save(student);
+        this.students = session.createQuery("from Student").getResultList();
+        session.getTransaction().commit();
+    }
+
     public void deleteCourse(String student_lastName, String course) {
         Student st = session.get(Student.class,findStudentByLastName(student_lastName).getId());
         for (Course c:st.getCourseList()) {
@@ -69,7 +86,6 @@ public class DAO_Controller implements DAO {
                 }
             }
         session.getTransaction().commit();
-//        session.beginTransaction();
     }
 
     public void deleteStudent(String courseName, String student) {
@@ -82,9 +98,8 @@ public class DAO_Controller implements DAO {
             }
         }
         session.getTransaction().commit();
-//        session.beginTransaction();
     }
-    // добавить курс студенту
+    // добавить курс студенту - не рабочий метод
     public void setCourseToStudent(String studentLastName, String course) {
         Course currentCourse = null;
         for (Course c:courses) {
@@ -98,8 +113,9 @@ public class DAO_Controller implements DAO {
         }
         for (Student st:students) {
             if (st.getLastName().equals(studentLastName)){
-                st.getCourseList().add(currentCourse);
-                session.createQuery("UPDATE Student SET courseList");
+                st.setCourseList(courses);
+                session.save(st);
+                session.getTransaction().commit();
                 return;
             }
         }
@@ -119,7 +135,9 @@ public class DAO_Controller implements DAO {
         }
         for (Course c:courses) {
             if (c.getCourse_name().equals(course)){
-                c.getStudentList().add(currentStudent);
+                c.setStudentList(students);
+                session.save(c);
+                session.getTransaction().commit();
                 return;
             }
         }
